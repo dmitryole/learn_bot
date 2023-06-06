@@ -1,10 +1,11 @@
 import logging
 from glob import glob
+import os
 from random import choice
 import ephem
 import datetime
 
-from utilis import get_smile, play_ramdome_numbers, main_keyboard
+from utils import get_smile, play_ramdome_numbers, main_keyboard, has_object_on_image
 
 # Функция приветствия пользователя при /start
 def greet_user(update, context):
@@ -76,3 +77,24 @@ def get_planet(update, context):
         update.message.reply_text(f'{user_planet} in the constellation {constellation}')
     except AttributeError:
         update.message.reply_text(f'Check planet name')
+
+def check_user_photo(update, context):
+    update.message.reply_text('Обрабатывем фото')
+    # Создаем деректорию downloads, если ее еще нет
+    os.makedirs('downloads', exist_ok=True)
+    # Получаем файл из списка файлов
+    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
+    # Сохранием файл в созданой деректории
+    file_name = os.path.join('downloads', f'{photo_file.file_id}.jpg')
+    # Скачиваем файл из деректории
+    photo_file.download(file_name)
+    update.message.reply_text("Файл сохранен")
+    if has_object_on_image(file_name, 'cat'):
+        update.message.reply_text("Обноружен котик, сохраняю в библеотеку")
+        new_filename = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
+        # Переменовываем и перемешаем картинку в папку
+        os.rename(file_name, new_filename)
+    else:
+        # Удаляем файл
+        os.remove(file_name)
+        update.message.reply_text("Тревога, котик не обнаружен!")

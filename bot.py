@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import settings
 
 from handlers import (greet_user, get_planet, guess_number, send_cat_picture,
-                      user_coordinates, talk_to_me)
+                      user_coordinates, talk_to_me, check_user_photo)
 
 # Конфигурация логов
 logging.basicConfig(filename='bot.log',
@@ -32,6 +32,8 @@ def main():
     dp.add_handler(CommandHandler("cat", send_cat_picture))
     # Обработчик регулярных выражений: ^ - начало строки, $ - конец строки
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'), send_cat_picture))
+    # Обработчик фото
+    dp.add_handler(MessageHandler(Filters.photo, check_user_photo))
     # Обработчик локации
     dp.add_handler(MessageHandler(Filters.location, user_coordinates))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
